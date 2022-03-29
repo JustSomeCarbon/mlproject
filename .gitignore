@@ -1,1 +1,2 @@
-dataset/*.csv
+dataset/sentiment1/*.csv
+dataset/tweetdataset/*.csv
