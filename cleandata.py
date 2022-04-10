@@ -1,7 +1,4 @@
-from nbformat import write
-import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 import csv
 import nltk
 from nltk.corpus import stopwords
@@ -17,7 +14,7 @@ def main():
     # read the dataset
     dataset = pd.read_csv("dataset/sentiment1/Emotion_final.csv")
     # sadness, anger, love, surprise, fear, happy
-    labels = dataset["Emotion"].unique()
+    #labels = dataset["Emotion"].unique()
     dataset = dataset.dropna()
 
     # store input data and labels
