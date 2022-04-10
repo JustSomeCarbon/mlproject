@@ -1,7 +1,8 @@
+from nbformat import write
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-#import seaborn as sns
+import csv
 import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
@@ -51,13 +52,23 @@ def main():
         for str in n:
             tmp.append(ps.stem(str))
         # set the data as the stems
-        new_data[i] = tmp
+        new_data[i] = [' '.join(tmp), label_data[i]]
 
     # print for debugging
     """
     for i in range(5):
         print(new_data[i])
     """
+
+    # write the cleaned data to a csv file
+    fields = ["Text", "Emotion"]
+    outfile = "cleandata.csv"
+    with open(outfile, 'w') as csv_file:
+        writer = csv.writer(csv_file)
+        # write the fields of the file
+        writer.writerow(fields)
+        # write the rest of the data
+        writer.writerows(new_data)
 
 
 if __name__ == "__main__":
