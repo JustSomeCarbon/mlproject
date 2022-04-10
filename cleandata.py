@@ -14,7 +14,7 @@ nltk.download('punkt')
 def main():
     # read the dataset
     dataset = pd.read_csv("dataset/sentiment1/Emotion_final.csv")
-    labels = dataset["Emotion"].unique()
+    labels = dataset["Emotion"].unique() # sadness, anger, love, surprise, fear, happy
     dataset = dataset.dropna()
 
     # store input data and labels
