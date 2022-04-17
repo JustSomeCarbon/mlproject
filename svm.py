@@ -1,8 +1,11 @@
 import matplotlib.pyplot as plt
+import nltk
+from nltk.tokenize import word_tokenize
 import numpy as np
 import pandas as pd
 import seaborn as sns
 
+nltk.download('punkt')
 
 def main():
     # read in the cleaned data
@@ -13,6 +16,7 @@ def main():
     label_data = dataset["Emotion"]
     total_entries = len(text_data)
 
+
     # TF (term frequency) - how common a specific word is
     # TF(t) = (number of times term t appears in the document) / (total number of terms in the document)
 
@@ -21,6 +25,8 @@ def main():
 
     # TF-IDF weight = TF * IDF  (product of the two quantities)
 
+    text_freq = tok_frequency(text_data)
+
 
 #
 # tok_frequency - takes an array of input texts and returns the term frequency for each of the words
@@ -28,9 +34,11 @@ def main():
 #
 def tok_frequency(texts):
     total_freq = []
+
     for text in texts:
+        toks = word_tokenize(text)
         local_freq = {}
-        for t in text:
+        for t in toks:
             if t in local_freq:
                 local_freq[t] += 1
             else:
