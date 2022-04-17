@@ -1,3 +1,4 @@
+import math
 import matplotlib.pyplot as plt
 import nltk
 from nltk.tokenize import word_tokenize
@@ -25,7 +26,12 @@ def main():
 
     # TF-IDF weight = TF * IDF  (product of the two quantities)
 
-    text_freq = tok_frequency(text_data)
+    text_term_freq = term_frequency(tok_frequency(text_data))
+    frequency_count = word_per_doc(tok_frequency(text_data))
+    idf = determine_idf(text_term_freq, frequency_count)
+
+    for i in range(5):
+        print(idf[i])
 
 
 #
@@ -47,11 +53,12 @@ def tok_frequency(texts):
         total_freq.append(local_freq)
 
     # return the total frequency array
-    return term_frequency(total_freq)
+    return total_freq
+
 
 #
 # term_frequency - takes a frequency matrix and determines the term frequency for each term
-#           within a given text.
+#           within a text.
 #
 def term_frequency(total_freq):
     tf_total = []
@@ -67,6 +74,41 @@ def term_frequency(total_freq):
 
     # return the term frequency array
     return tf_total
+
+
+#
+# word_per_doc - determines the total frequency of all terms within the texts.
+#
+def word_per_doc(total_freq):
+    wpd = {}
+
+    for freq in total_freq:
+        for term, _ in freq.items():
+            if term in wpd:
+                wpd[term] += 1
+            else:
+                wpd[term] = 1
+
+    return wpd
+
+
+#
+# determine_idf - calculates and returns an array containing a matrix of idf scores for
+#           each term within a text, for all texts.
+#
+def determine_idf(term_freq, freq_count):
+    idf = []
+    total_texts = len(term_freq) # total number of
+
+    for freq in term_freq:
+        local_idf = {}
+        for term, _ in freq.items():
+            local_idf[term] = math.log10(total_texts / float(freq_count[term]))
+        # append idf value to total idf array
+        idf.append(local_idf)
+    
+    return idf
+
 
 if __name__ == "__main__":
     main()
