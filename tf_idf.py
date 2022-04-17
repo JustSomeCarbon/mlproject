@@ -108,3 +108,14 @@ def score_texts(tf_idf):
         s_scores.append(local_score / text_len)
 
     return s_scores
+
+
+#
+# average_scores - calculate the average sentence score.
+#
+def average_score(scores):
+    sum = 0
+    for score in scores:
+        sum += score
+
+    return sum / len(scores)

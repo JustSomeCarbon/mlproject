@@ -34,8 +34,11 @@ def main():
 
     text_score = tf_idf.score_texts(tf_idf_score)               # Score array for each text in the data
 
+    """
     for i in range(10):
         print(text_score[i])
+    print("Average score:", tf_idf.average_score(text_score))
+    """
 
 # END OF MAIN
 
