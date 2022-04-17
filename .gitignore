@@ -1,2 +1,3 @@
+__pycache__/*
 dataset/sentiment1/*.csv
 dataset/tweetdataset/*.csv

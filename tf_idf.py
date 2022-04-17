@@ -96,7 +96,7 @@ def generate_tf_idf(term_freq, idf):
 
 
 #
-# score_texts - takes the tf-idf scores and determines scores for each of the texts.
+# score_texts - takes the tf-idf scores and determines scores for each of the sentences in the data.
 #
 def score_texts(tf_idf):
     s_scores = []

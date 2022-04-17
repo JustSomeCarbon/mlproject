@@ -1,7 +1,5 @@
-import math
 import matplotlib.pyplot as plt
-import nltk
-from nltk.tokenize import word_tokenize
+from sklearn.model_selection import train_test_split
 import numpy as np
 import pandas as pd
 import seaborn as sns
@@ -39,6 +37,14 @@ def main():
         print(text_score[i])
     print("Average score:", tf_idf.average_score(text_score))
     """
+
+    # training and testing split
+    # x - random assortment of text_data
+    # y - associated random assortment of label_data
+    x_train, x_test, y_train, y_test = train_test_split(text_data, label_data, test_size=0.3)
+    # access value : y_train[0]
+    # access index : y_train.index[0]
+
 
 # END OF MAIN
 
