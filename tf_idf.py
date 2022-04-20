@@ -100,12 +100,14 @@ def generate_tf_idf(term_freq, idf):
 #
 def score_texts(tf_idf):
     s_scores = []
+    score_index = 0
     for texts in tf_idf:
         local_score = 0
         text_len = len(texts)
         for _, score in texts.items():
             local_score += score
-        s_scores.append(local_score / text_len)
+        s_scores.append([score_index ,local_score / text_len])
+        score_index += 1
 
     return s_scores
 
