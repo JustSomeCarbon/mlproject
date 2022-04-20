@@ -1,9 +1,16 @@
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
+from sklearn import svm
+from sklearn.metrics import accuracy_score
 import numpy as np
 import pandas as pd
 import seaborn as sns
 import tf_idf
+
+#
+# Classes possible: Sadness, Anger, Love, Surprise, Fear, and Happiness (6)
+#
+
 
 def main():
     # read in the cleaned data
@@ -44,6 +51,15 @@ def main():
     x_train, x_test, y_train, y_test = train_test_split(text_data, label_data, test_size=0.3)
     # access value : y_train[0]
     # access index : y_train.index[0]
+
+    # create an SVM object: Using the Radial Basis Function
+    rbf = svm.SVC(kernel='rbf', gamma=0.5, C=0.1).fit(x_train, y_train)
+
+    # determine the efficiency
+    rbf_pred = rbf.predict(x_test)
+
+    rbf_accuracy = accuracy_score(y_test, rbf_pred)
+    print("Accuracy of SVM with RBF kernel: ", (rbf_accuracy*100))
 
 
 # END OF MAIN
