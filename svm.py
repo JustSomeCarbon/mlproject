@@ -1,14 +1,13 @@
-from isort import file
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 from numpy import vectorize
 from sklearn.model_selection import train_test_split
 from sklearn import svm
 from sklearn.metrics import accuracy_score
-import numpy as np
+#import numpy as np
 import pandas as pd
-import seaborn as sns
-from sympy import deg
-import tf_idf
+#import seaborn as sns
+#from sympy import deg
+#import tf_idf
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 
@@ -26,7 +25,7 @@ linear_file = open(svm_linear_filename, "w+")
 rbf_file = open(svm_rbf_filename, "w+")
 poly_file = open(svm_poly_filename, "w+")
 
-
+epoch = 20
 run_val = 0
 
 def main():
@@ -68,24 +67,35 @@ def main():
 
     # generate model training and testing data and store the results
     # in the output files
+    run_val = 1
     split_values = [0.2, 0.25, 0.3, 0.35, 0.4]
+    print("Training/Testing split values:", split_values)
+    print("Building model and testing at each split epoch number:", epoch)
 
     print("Building and testing SVM with linear kernel...")
     for split_val in split_values:
         print(" Testing with split value:", split_val)
-        svm_linear(text_data, label_data, split_val)
+        for i in range(epoch):
+            svm_linear(text_data, label_data, split_val)
+            run_val += 1
     print("Testing complete")
 
+    run_val = 1
     print("Building and tsting SVM with RBF kernel...")
     for split_val in split_values:
         print(" Testing with split value:", split_val)
-        svm_rbf(text_data, label_data, split_val)
+        for i in range(epoch):
+            svm_rbf(text_data, label_data, split_val)
+            run_val += 1
     print("Testing complete")
 
+    run_val = 1
     print("Building and testing SVM with polynomial kernel...")
     for split_val in split_values:
         print(" Testing with split value:", split_val)
-        svm_poly(text_data, label_data, split_val)
+        for i in range(epoch):
+            svm_poly(text_data, label_data, split_val)
+            run_val += 1
     print("Testing complete")
 
     # close the files at the end of execution
