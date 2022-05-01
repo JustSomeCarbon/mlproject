@@ -1,3 +1,9 @@
+#
+# file: svm.py
+# description: This file contains the source code for the Support Vector Machine
+#       model implementation. The program expects the input to be already cleaned.
+#
+
 #import matplotlib.pyplot as plt
 from numpy import vectorize
 from sklearn.model_selection import train_test_split
