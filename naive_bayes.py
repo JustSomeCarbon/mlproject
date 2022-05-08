@@ -6,7 +6,7 @@
 
 import string
 from sklearn.model_selection import train_test_split
-from sklearn.naive_bayes import MultinomialNB # multinomial naive bayes
+from sklearn.naive_bayes import MultinomialNB, GaussianNB
 from sklearn.metrics import accuracy_score
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 import argparse
@@ -21,9 +21,11 @@ run_val = 0
 # argparse definitions
 ap = argparse.ArgumentParser()
 ap.add_argument("-p", "--pre_train", default='bow', choices=['bow', 'tf-idf'])
+ap.add_argument("-m", "--model", default='multinomial', choices=['multinomial', 'gaussian'])
 
 args = vars(ap.parse_args())
 pre = args['pre_train']
+mod = args['model']
 
 
 # global filenames
@@ -69,11 +71,19 @@ def nb_bow_func(text_data, label_data):
 
     split_values = [0.2, 0.25, 0.3, 0.35, 0.4]
 
-    print("Constructing Naive Bayes model...")
     # create the Naive Bayes model
-    for split_value in split_values:
-        for i in range(epoch):
-            nb_model_bow(label_data, bag_data, split_value)
+    if mod == 'mulitnomial':
+        print("Constructing Multinomial Naive Bayes model...")
+        nb_bow_file.write("Multinomial Naive Bayes using BOW::\n")
+        for split_value in split_values:
+            for i in range(epoch):
+                nb_model_bow(label_data, bag_data, split_value)
+    else:
+        print("Constructing Gaussian Naive Bayes model...")
+        nb_bow_file.write("Gaussian Naive Bayes using BOW::\n")
+        for split_value in split_values:
+            for i in range(epoch):
+                gaus_nb_model_bow(label_data, bag_data, split_value)
 
 
 #
@@ -85,10 +95,19 @@ def nb_tfidf_func(text_data, label_data):
     print("Transforming dataset with TF-IDF...")
 
     split_values = [0.2, 0.25, 0.3, 0.35, 0.4]
-    print("Constructing Naive Bayes model...")
-    for split_value in split_values:
-        for i in range(epoch):
-            nb_model_tfidf(label_data, text_data, split_value)
+
+    if mod == 'multinomial':
+        print("Constructing Multinomail Naive Bayes model...")
+        nb_tfidf_file.write("Multinomial Naive Bayes using TF-IDF::\n")
+        for split_value in split_values:
+            for i in range(epoch):
+                nb_model_tfidf(label_data, text_data, split_value)
+    else:
+        print("Constructing Gaussian Naive Bayes model...")
+        nb_tfidf_file.write("Gaussian Naive Bayes using TF-IDF::\n")
+        for split_value in split_values:
+            for i in range(epoch):
+                gaus_nb_model_tfidf(label_data, text_data, split_value)
 
 
 #
@@ -105,10 +124,31 @@ def nb_model_bow(label_data, bag_data, splt_val):
 
     # generate the accuracy score for the model
     naive_predict = mnd.predict(x_test)
-
     acc = accuracy_score(y_test, naive_predict)
+
     print(" Model evaluation run test split:", splt_val)
-    print("  Accuracy of Naive Bayes using BOW:", (acc*100))
+    print("  Accuracy of Multinomial Naive Bayes using BOW:", (acc*100))
+    write_out(nb_bow_filename, acc, splt_val)
+
+
+#
+# gaus_nb_model_bow - takes the label data from the dataset and a bag-of-words object
+#       to create a Gaussian Naive Bayes model.
+#
+def gaus_nb_model_bow(label_data, bag_data, splt_val):
+    # split the training and testing dataset
+    x_train, x_test, y_train, y_test = train_test_split(bag_data.bag, label_data, test_size=splt_val)
+    
+    # create the model
+    gnb = GaussianNB()
+    gnb.fit(x_train.todense(), y_train)
+
+    # generate the accuracy score for the model
+    naive_predict = gnb.predict(x_test)
+    acc = accuracy_score(y_test, naive_predict)
+
+    print(" Model evaluation run test split:", splt_val)
+    print("  Accuracy of Gaussian Naive Bayes using BOW:", (acc*100))
     write_out(nb_bow_filename, acc, splt_val)
 
 
@@ -129,14 +169,41 @@ def nb_model_tfidf(label_data, text_data, splt_val):
     #print("test shape: {}".format(tf_test.shape))
 
     # create the Naive Bayes model
-    mnd = MultinomialNB()
-    mnd.fit(tf_train, y_train)
+    mnb = MultinomialNB()
+    mnb.fit(tf_train, y_train)
 
     # determine the accuracy of the model
-    naive_predict = mnd.predict(tf_test)
+    naive_predict = mnb.predict(tf_test)
     acc = accuracy_score(y_test, naive_predict)
+
     print(" Model evaluation run test split:", splt_val)
-    print("  Accuracy of Naive Bayes using tf-idf:", (acc*100))
+    print("  Accuracy of Multinomial Naive Bayes using tf-idf:", (acc*100))
+    write_out(nb_tf_filename, acc, splt_val)
+
+
+#
+# gaus_nb_model_tfidf - takes the label data from the dataset and the text data to
+#       perform TF-IDF over the dataset and creates a Gaussian Naive Bayes model
+#
+def gaus_nb_model_tfidf(label_data, text_data, splt_val):
+    x_train, x_test, y_train, y_test = train_test_split(text_data, label_data, test_size=splt_val)
+    
+    # create the term frequency vectorizer object
+    tf_vect = TfidfVectorizer()
+    # trained vectorizer
+    tf_train = tf_vect.fit_transform(x_train)
+    tf_test = tf_vect.transform(x_test)
+
+    # create the Naive Bayes model
+    gnb = GaussianNB()
+    gnb.fit(tf_train, y_train)
+
+    # determine the accuracy of the model
+    naive_predict = gnb.predict(tf_test)
+    acc = accuracy_score(y_test, naive_predict)
+
+    print(" Model evaluation run test split:", splt_val)
+    print("  Accuracy of Gaussian Naive Bayes using tf-idf:", (acc*100))
     write_out(nb_tf_filename, acc, splt_val)
 
 
