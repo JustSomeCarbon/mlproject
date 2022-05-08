@@ -15,7 +15,7 @@ import numpy as np
 from bow import *
 
 # increase epoch to find better mean accuracy
-epoch = 5
+epoch = 20
 run_val = 0
 
 # argparse definitions
@@ -141,7 +141,7 @@ def gaus_nb_model_bow(label_data, bag_data, splt_val):
     
     # create the model
     gnb = GaussianNB()
-    gnb.fit(x_train.todense(), y_train)
+    gnb.fit(x_train, y_train)
 
     # generate the accuracy score for the model
     naive_predict = gnb.predict(x_test)
@@ -196,10 +196,10 @@ def gaus_nb_model_tfidf(label_data, text_data, splt_val):
 
     # create the Naive Bayes model
     gnb = GaussianNB()
-    gnb.fit(tf_train, y_train)
+    gnb.fit(tf_train.todense(), y_train)
 
     # determine the accuracy of the model
-    naive_predict = gnb.predict(tf_test)
+    naive_predict = gnb.predict(tf_test.todense())
     acc = accuracy_score(y_test, naive_predict)
 
     print(" Model evaluation run test split:", splt_val)
