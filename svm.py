@@ -5,6 +5,7 @@
 #
 
 #import matplotlib.pyplot as plt
+import argparse
 from numpy import vectorize
 from sklearn.model_selection import train_test_split
 from sklearn import svm
@@ -15,11 +16,20 @@ import pandas as pd
 #from sympy import deg
 #import tf_idf
 
-from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 
 #
 # Classes possible: Sadness, Anger, Love, Surprise, Fear, and Happiness (6)
 #
+
+ap = argparse.ArgumentParser()
+ap.add_argument("-p", "--pre_train", default='tf-idf', choices=['bow', 'tf-idf'])
+ap.add_argument("-m", "--model", default='linear', choices=['linear', 'rbf', 'poly'])
+
+
+args = vars(ap.parse_args())
+pre = args['pre_train']
+mod = args['model']
 
 # global output filenames
 svm_linear_filename = "svm_linear.out"
@@ -27,11 +37,14 @@ svm_rbf_filename = "svm_rbf.out"
 svm_poly_filename = "svm_poly.out"
 
 # global file variables
-linear_file = open(svm_linear_filename, "w+")
-rbf_file = open(svm_rbf_filename, "w+")
-poly_file = open(svm_poly_filename, "w+")
+if mod == 'linear':
+    linear_file = open(svm_linear_filename, "w+")
+elif mod == 'rbf':
+    rbf_file = open(svm_rbf_filename, "w+")
+else:
+    poly_file = open(svm_poly_filename, "w+")
 
-epoch = 20
+epoch = 5
 run_val = 0
 
 def main():
@@ -78,36 +91,54 @@ def main():
     print("Training/Testing split values:", split_values)
     print("Building model and testing at each split epoch number:", epoch)
 
-    print("Building and testing SVM with linear kernel...")
-    for split_val in split_values:
-        print(" Testing with split value:", split_val)
-        for i in range(epoch):
-            svm_linear(text_data, label_data, split_val)
-            run_val += 1
-    print("Testing complete")
+    if mod == 'linear':
+        print("Building and testing SVM with linear kernel...")
+        for split_val in split_values:
+            print(" Testing with split value:", split_val)
+            for i in range(epoch):
+                if pre == 'tf-idf':
+                    print("  Building linear SVM with TF-IDF...")
+                    svm_linear(text_data, label_data, split_val)
+                elif pre == 'bow':
+                    print("  Building linear SVM with BOW...")
+                    svm_linear_bow(text_data, label_data, split_val)
+                run_val += 1
+        print("Testing complete")
+        linear_file.close()
 
-    run_val = 1
-    print("Building and tsting SVM with RBF kernel...")
-    for split_val in split_values:
-        print(" Testing with split value:", split_val)
-        for i in range(epoch):
-            svm_rbf(text_data, label_data, split_val)
-            run_val += 1
-    print("Testing complete")
+    if mod == 'rbf':
+        #run_val = 1
+        print("Building and tsting SVM with RBF kernel...")
+        for split_val in split_values:
+            print(" Testing with split value:", split_val)
+            for i in range(epoch):
+                if pre == 'tf_idf':
+                    print("  Building RBF SVM with TF-IDF...")
+                    svm_rbf(text_data, label_data, split_val)
+                elif pre == 'bow':
+                    print("  Building RBF SVM with BOW...")
+                    svm_rbf_bow(text_data, label_data, split_val)
+                run_val += 1
+        print("Testing complete")
+        rbf_file.close()
 
-    run_val = 1
-    print("Building and testing SVM with polynomial kernel...")
-    for split_val in split_values:
-        print(" Testing with split value:", split_val)
-        for i in range(epoch):
-            svm_poly(text_data, label_data, split_val)
-            run_val += 1
-    print("Testing complete")
+    if mod == 'poly':
+        #run_val = 1
+        print("Building and testing SVM with polynomial kernel...")
+        for split_val in split_values:
+            print(" Testing with split value:", split_val)
+            for i in range(epoch):
+                if pre == 'tf_idf':
+                    print("  Building Poly SVM with TF-IDF...")
+                    svm_poly(text_data, label_data, split_val)
+                elif pre == 'bow':
+                    print("  Building Poly SVM with BOW...")
+                    svm_poly_bow(text_data, label_data, split_val)
+                run_val += 1
+        print("Testing complete")
+        poly_file.close()
 
     # close the files at the end of execution
-    linear_file.close()
-    rbf_file.close()
-    poly_file.close()
 
 
 # END OF MAIN
@@ -156,6 +187,26 @@ def svm_linear(text_data, label_data, split):
 
 
 #
+# svm_linear_bow - creates and tests an SVM model utilizing the linear kernel.
+#       training and testing split provided. The data is pre-processed with
+#       bag-of-words.
+#
+def svm_linear_bow(text_data, label_data, split):
+    x_train, x_test, y_train, y_test = train_test_split(text_data, label_data, test_size=split)
+    # create the count vectorizer
+    count_vect = CountVectorizer()
+    tf_train = count_vect.fit_transform(x_train)
+    tf_test = count_vect.transform(x_test)
+
+    # create linear classifier
+    svm_linear = svm.SVC(kernel='linear')
+    svm_linear.fit(tf_train, y_train)
+    pred_linear = svm_linear.predict(tf_test)
+    linear_acc = accuracy_score(y_test, pred_linear)
+    write_to_out(svm_linear_filename, linear_acc, run_val, split)
+
+
+#
 # svm_rbf - creates and tests an SVM model utilizing the RBF kernel.
 #          training and testing split is provided, and accuracy of model is printed.
 #
@@ -174,7 +225,27 @@ def svm_rbf(text_data, label_data, split):
 
 
 #
-# svm_poly - creates and tests an SVM model utilizing the Polynomail kernel.
+# svm_rbf_bow - creates and tests an SVM model utilizing the RBF kernel.
+#       training and testing split is provided. The data is pre-processed
+#       with bag-of-words
+#
+def svm_rbf_bow(text_data, label_data, split):
+    x_train, x_test, y_train, y_test = train_test_split(text_data, label_data, test_size=split)
+    # create the count vectorizer
+    count_vect = CountVectorizer()
+    tf_train = count_vect.fit_transform(x_train)
+    tf_test = count_vect.transform(x_test)
+
+    # create the rbf classifier
+    svm_rbf = svm.SVC(kernel='rbf', gamma=0.4, C=0.1)
+    svm_rbf.fit(tf_train, y_train)
+    pred_rbf = svm_rbf.predict(tf_test)
+    rbf_acc = accuracy_score(y_test, pred_rbf)
+    write_to_out(svm_rbf_filename, rbf_acc, run_val, split)
+
+
+#
+# svm_poly - creates and tests an SVM model utilizing the Polynomial kernel.
 #       training and testing split is provided, and accuracy of the model is printed
 #
 def svm_poly(text_data, label_data, split):
@@ -187,6 +258,26 @@ def svm_poly(text_data, label_data, split):
     svm_poly = svm.SVC(kernel='poly', degree=3, C=1)
     svm_poly.fit(train_vects, y_train)
     pred_poly = svm_poly.predict(test_vects)
+    poly_acc = accuracy_score(y_test, pred_poly)
+    write_to_out(svm_poly_filename, poly_acc, run_val, split)
+
+
+#
+# svm_poly_bow - creates and tests an SVM model utilizing the Polynomial kernel.
+#       training and testing split is provided. The data is pre-processed 
+#       with bag-of-words
+#
+def svm_poly_bow(text_data, label_data, split):
+    x_train, x_test, y_train, y_test = train_test_split(text_data, label_data, test_size=split)
+    # create the count vectorizer
+    count_vect = CountVectorizer()
+    tf_train = count_vect.fit_transform(x_train)
+    tf_test = count_vect.transform(x_test)
+
+    # create the polinomial classifier
+    svm_poly = svm.SVC(kernel='poly', degree=3, C=1)
+    svm_poly.fit(tf_train, y_train)
+    pred_poly = svm_poly.predict(tf_test)
     poly_acc = accuracy_score(y_test, pred_poly)
     write_to_out(svm_poly_filename, poly_acc, run_val, split)
 

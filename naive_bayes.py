@@ -53,8 +53,10 @@ def main():
 
     if pre == 'bow':
         nb_bow_func(text_data, label_data)
+        nb_bow_file.close()
     else:
         nb_tfidf_func(text_data, label_data)
+        nb_tfidf_file.close()
 
 
 #
